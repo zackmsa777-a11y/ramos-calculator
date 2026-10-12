@@ -1,0 +1,36 @@
+weave "src/eval.ramos"
+
+fn calc_report(result: CalcResult) {
+    stderr(to_bytes(calc_message(result) + s"\n"))
+}
+fn main() {
+    if arg_count() > 2 { stderr("usage: calc [EXPRESSION | --repl]\n")
+        exit(2) }
+    if arg_count() == 2 && bytes_equal(arg(1), "--help") {
+        print("usage: calc [EXPRESSION | --repl]\nFunctions: sqrt abs min max clamp pow rad deg sin cos tan ln log exp\nConstants: pi e ans. Operators: + - * / ^. Trig uses radians. Type quit to leave the REPL.")
+        return
+    }
+    if arg_count() == 2 && !bytes_equal(arg(1), "--repl") {
+        let result = calc_eval(string(arg(1)), 0.0)
+        if result.status != 0 { calc_report(result)
+            exit(2) }
+        print(math_text(result.value, 10))
+        return
+    }
+    print("Ramos calculator — type quit to leave; ans remembers the last result")
+    var ans = 0.0
+    while true {
+        stdout("calc> ")
+        let raw = read_line()
+        if io_error() != 0 { stderr("cannot read stdin\n")
+            exit(2) }
+        if buffer_len(raw) == 0 && stdin_eof() { break }
+        if bytes_equal(raw, "quit") { break }
+        if buffer_len(raw) != 0 {
+            let result = calc_eval(string(raw), ans)
+            if result.status != 0 { calc_report(result) }
+            else { ans = result.value
+                print(math_text(ans, 10)) }
+        }
+    }
+}

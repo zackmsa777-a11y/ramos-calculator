@@ -1,0 +1,233 @@
+weave "../stdlib/math.ramos"
+weave "../stdlib/numbers.ramos"
+weave "../stdlib/bytes.ramos"
+weave "science.ramos"
+
+// Shared native expression engine for the command line and desktop window.
+struct CalcState { raw: bytes, pos: int64, depth: int64, status: int64, ans: float64 }
+struct CalcResult { value: float64, status: int64, column: int64 }
+
+fn calc_fail(state: CalcState, status: int64) {
+    if state.status == 0 { state.status = status }
+}
+fn calc_peek(state: CalcState) -> int64 {
+    if state.pos >= buffer_len(state.raw) { return 0 }
+    return buffer_get(state.raw, state.pos)
+}
+fn calc_space(state: CalcState) {
+    while true {
+        let c = calc_peek(state)
+        if c != 32 && c != 9 && c != 10 && c != 13 { return }
+        state.pos += 1
+    }
+}
+fn calc_letter(c: int64) -> bool { return c >= 97 && c <= 122 }
+fn calc_digit(c: int64) -> bool { return c >= 48 && c <= 57 }
+// Application bounds leave headroom for every checked native operation.
+// Nonzero values must have magnitude 1e-100..1e100, including intermediates.
+fn calc_bound(state: CalcState, value: float64) -> float64 {
+    let magnitude = math_abs(value)
+    if magnitude > 1e100 || (magnitude != 0.0 && magnitude < 1e-100) {
+        calc_fail(state, -34)
+        return 0.0
+    }
+    return value
+}
+fn calc_power(state: CalcState, base: float64, exponent: float64) -> float64 {
+    if exponent < -64.0 || exponent > 64.0 {
+        calc_fail(state, -22)
+        return 0.0
+    }
+    let n = float_to_int(exponent)
+    if float64(n) != exponent { calc_fail(state, -22)
+        return 0.0 }
+    var out = 1.0
+    var factor = base
+    if n < 0 {
+        if base == 0.0 { calc_fail(state, -22)
+            return 0.0 }
+        factor = calc_bound(state, 1.0 / base)
+    }
+    for i in 0..num_abs(n) {
+        if state.status != 0 { return 0.0 }
+        out = calc_bound(state, out * factor)
+    }
+    return out
+}
+fn calc_function(state: CalcState, name: string, a: float64, b: float64,
+                 c: float64, count: int64) -> float64 {
+    if (name == s"sin" || name == s"cos" || name == s"tan") && count == 1 {
+        if math_abs(a) > 1e6 { calc_fail(state, -22)
+            return 0.0 }
+        if name == s"sin" { return calc_bound(state, science_sin(a)) }
+        let cosine = science_cos(a)
+        if name == s"cos" { return calc_bound(state, cosine) }
+        if math_abs(cosine) < 1e-12 { calc_fail(state, -22)
+            return 0.0 }
+        return calc_bound(state, science_sin(a) / cosine)
+    }
+    if (name == s"ln" || name == s"log") && count == 1 {
+        if a <= 0.0 { calc_fail(state, -22)
+            return 0.0 }
+        let value = science_ln(a)
+        if name == s"log" { return calc_bound(state, value / 2.302585092994046) }
+        return calc_bound(state, value)
+    }
+    if name == s"exp" && count == 1 {
+        if a < -230.0 || a > 230.0 { calc_fail(state, -22)
+            return 0.0 }
+        return calc_bound(state, science_exp(a))
+    }
+    if name == s"sqrt" && count == 1 {
+        if a < 0.0 { calc_fail(state, -22)
+            return 0.0 }
+        return math_sqrt(a)
+    }
+    if name == s"abs" && count == 1 { return math_abs(a) }
+    if name == s"min" && count == 2 { return math_min(a, b) }
+    if name == s"max" && count == 2 { return math_max(a, b) }
+    if name == s"clamp" && count == 3 {
+        if b > c { calc_fail(state, -22)
+            return 0.0 }
+        return math_clamp(a, b, c)
+    }
+    if name == s"pow" && count == 2 { return calc_power(state, a, b) }
+    if name == s"rad" && count == 1 { return calc_bound(state, a * (3.141592653589793 / 180.0)) }
+    if name == s"deg" && count == 1 { return calc_bound(state, a * (180.0 / 3.141592653589793)) }
+    calc_fail(state, -22)
+    return 0.0
+}
+fn calc_number(state: CalcState) -> float64 {
+    let start = state.pos
+    while calc_digit(calc_peek(state)) { state.pos += 1 }
+    if calc_peek(state) == 46 {
+        state.pos += 1
+        while calc_digit(calc_peek(state)) { state.pos += 1 }
+    }
+    if calc_peek(state) == 101 || calc_peek(state) == 69 {
+        state.pos += 1
+        if calc_peek(state) == 43 || calc_peek(state) == 45 { state.pos += 1 }
+        while calc_digit(calc_peek(state)) { state.pos += 1 }
+    }
+    let literal = bytes_slice(state.raw, start, state.pos)
+    let parsed = math_parse_bytes(literal)
+    if parsed.status != 0 { calc_fail(state, parsed.status)
+        return 0.0 }
+    if parsed.value == 0.0 {
+        // Reject nonzero literals that rounded to zero before range checking.
+        var i = start
+        while i < state.pos {
+            let c = buffer_get(state.raw, i)
+            if c == 101 || c == 69 { break }
+            if c >= 49 && c <= 57 { calc_fail(state, -34) }
+            i += 1
+        }
+    }
+    return calc_bound(state, parsed.value)
+}
+fn calc_atom(state: CalcState) -> float64 {
+    calc_space(state)
+    let c = calc_peek(state)
+    if c == 43 || c == 45 {
+        state.pos += 1
+        let out = calc_expression(state, 25)
+        if c == 45 { return -out }
+        return out
+    }
+    if c == 40 {
+        state.pos += 1
+        let out = calc_expression(state, 0)
+        calc_space(state)
+        if calc_peek(state) != 41 { calc_fail(state, -22) }
+        else { state.pos += 1 }
+        return out
+    }
+    if calc_digit(c) { return calc_number(state) }
+    if calc_letter(c) {
+        let start = state.pos
+        while calc_letter(calc_peek(state)) { state.pos += 1 }
+        let name = string(bytes_slice(state.raw, start, state.pos))
+        calc_space(state)
+        if calc_peek(state) != 40 {
+            if name == s"pi" { return 3.141592653589793 }
+            if name == s"e" { return 2.718281828459045 }
+            if name == s"ans" { return state.ans }
+            calc_fail(state, -22)
+            return 0.0
+        }
+        state.pos += 1
+        var count = 0
+        var a = 0.0
+        var b = 0.0
+        var d = 0.0
+        calc_space(state)
+        if calc_peek(state) != 41 {
+            while state.status == 0 {
+                count += 1
+                if count > 3 { calc_fail(state, -22)
+                    break }
+                let value = calc_expression(state, 0)
+                if count == 1 { a = value }
+                if count == 2 { b = value }
+                if count == 3 { d = value }
+                calc_space(state)
+                if calc_peek(state) != 44 { break }
+                state.pos += 1
+            }
+        }
+        if state.status != 0 { return 0.0 }
+        if calc_peek(state) != 41 { calc_fail(state, -22)
+            return 0.0 }
+        state.pos += 1
+        return calc_function(state, name, a, b, d, count)
+    }
+    calc_fail(state, -22)
+    return 0.0
+}
+fn calc_expression(state: CalcState, minimum: int64) -> float64 {
+    if state.depth >= 8 { calc_fail(state, -27)
+        return 0.0 }
+    state.depth += 1
+    var left = calc_atom(state)
+    while state.status == 0 {
+        calc_space(state)
+        let op = calc_peek(state)
+        var precedence = -1
+        if op == 43 || op == 45 { precedence = 10 }
+        if op == 42 || op == 47 { precedence = 20 }
+        if op == 94 { precedence = 30 }
+        if precedence < minimum { break }
+        state.pos += 1
+        var next = precedence + 1
+        if op == 94 { next = precedence }
+        let right = calc_expression(state, next)
+        if state.status != 0 { break }
+        if op == 43 { left += right }
+        if op == 45 { left -= right }
+        if op == 42 { left = left * right }
+        if op == 47 {
+            if right == 0.0 { calc_fail(state, -22)
+                break }
+            left = left / right
+        }
+        if op == 94 { left = calc_power(state, left, right) }
+        left = calc_bound(state, left)
+    }
+    state.depth -= 1
+    return left
+}
+fn calc_eval(expression: string, ans: float64) -> CalcResult {
+    let state = CalcState(to_bytes(expression), 0, 0, 0, ans)
+    if buffer_len(state.raw) > 4096 { return CalcResult(0.0, -27, 1) }
+    calc_bound(state, ans)
+    let value = calc_expression(state, 0)
+    calc_space(state)
+    if state.pos != buffer_len(state.raw) { calc_fail(state, -22) }
+    return CalcResult(value, state.status, state.pos + 1)
+}
+fn calc_message(result: CalcResult) -> string {
+    var message = s"Invalid expression, function arguments or domain"
+    if result.status == -27 { message = s"Expression or nesting limit exceeded" }
+    if result.status == -34 { message = s"Value outside calculator range 1e-100..1e100" }
+    return message + s" at byte column " + num_text(result.column)
+}

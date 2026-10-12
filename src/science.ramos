@@ -1,0 +1,58 @@
+// Bounded binary64 approximations, implemented entirely in Ramos.
+// The evaluator checks the documented domains before calling these helpers.
+fn science_angle(value: float64) -> float64 {
+    let turns = float_to_int(value / 6.283185307179586)
+    var out = value - float64(turns) * 6.283185307179586
+    if out > 3.141592653589793 { out -= 6.283185307179586 }
+    if out < -3.141592653589793 { out += 6.283185307179586 }
+    return out
+}
+fn science_sin(value: float64) -> float64 {
+    let x = science_angle(value)
+    var term = x
+    var out = term
+    for i in 1..26 {
+        term = -term * x * x / float64((2 * i) * (2 * i + 1))
+        out += term
+    }
+    return out
+}
+fn science_cos(value: float64) -> float64 {
+    let x = science_angle(value)
+    var term = 1.0
+    var out = term
+    for i in 1..26 {
+        term = -term * x * x / float64((2 * i - 1) * (2 * i))
+        out += term
+    }
+    return out
+}
+fn science_ln(value: float64) -> float64 {
+    var m = value
+    var power = 0
+    while m >= 2.0 { m = m / 2.0
+        power += 1 }
+    while m < 1.0 { m = m * 2.0
+        power -= 1 }
+    let z = (m - 1.0) / (m + 1.0)
+    var term = z
+    var out = 0.0
+    for i in 0..32 {
+        out += term / float64(2 * i + 1)
+        term = term * z * z
+    }
+    return 2.0 * out + float64(power) * 0.6931471805599453
+}
+fn science_exp(value: float64) -> float64 {
+    let power = float_to_int(value / 0.6931471805599453)
+    let remainder = value - float64(power) * 0.6931471805599453
+    var term = 1.0
+    var out = term
+    for i in 1..32 {
+        term = term * remainder / float64(i)
+        out += term
+    }
+    if power >= 0 { for i in 0..power { out = out * 2.0 } }
+    else { for i in 0..-power { out = out / 2.0 } }
+    return out
+}

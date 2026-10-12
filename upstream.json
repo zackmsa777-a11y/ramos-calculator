@@ -1,0 +1,59 @@
+{
+  "repository": "https://github.com/zackmsa777-a11y/ramos",
+  "version": "0.19.1",
+  "commit": "6c263c5023bc8a71c036d9b8151b82dc558adfde",
+  "files": [
+    {
+      "path": "stdlib/bytes.ramos",
+      "sha256": "bc8acc151392cefed044c6882a23837e41dac141c8c14fe6c066877ace7c9540"
+    },
+    {
+      "path": "stdlib/cli.ramos",
+      "sha256": "89a9e4b6b5426d6e5cf9ab8f0fb34e3e2c0b765c240d6c373e97675956f13982"
+    },
+    {
+      "path": "stdlib/gui.ramos",
+      "sha256": "52af9aec37a49b7c71f1e6e0d040a04e0be7224878ca0f7536798d5982b5db7c"
+    },
+    {
+      "path": "stdlib/io.ramos",
+      "sha256": "b346964fcf1c2da43f826411e31e97c2b760e5dfbd4dd4f318828f8be846cd6f"
+    },
+    {
+      "path": "stdlib/lists.ramos",
+      "sha256": "408be40b2709bccb9889ed4b03cf37db10415ea987085e816488e326c3d8333c"
+    },
+    {
+      "path": "stdlib/maps.ramos",
+      "sha256": "ea898314946f7ec9868dea971dee8c1decc72ce3e232f8f002b273930be735ac"
+    },
+    {
+      "path": "stdlib/math.ramos",
+      "sha256": "4ed5c45620351f329ff9faf4fbec19a9e14a008e58b85971ac7adcface92e063"
+    },
+    {
+      "path": "stdlib/numbers.ramos",
+      "sha256": "41052263d2157dc36b17a2929c078f6e56316ea42efa20d1836d6180ec90c2ad"
+    },
+    {
+      "path": "stdlib/path.ramos",
+      "sha256": "5180bcfb1e9e23483050e42f356e6384993065dd9d66f0fe9eadca0ad7cd22e0"
+    },
+    {
+      "path": "stdlib/process.ramos",
+      "sha256": "9631db00b884e4f64d4216f55364d772e4419308b9663e5508d6404589a67a22"
+    },
+    {
+      "path": "stdlib/system.ramos",
+      "sha256": "f44fb27bd9ea70118b5b63f83329b4d5388f1a9935dc2fe5c50060adbce59235"
+    },
+    {
+      "path": "stdlib/text.ramos",
+      "sha256": "941cfa3c3daeac2f2f4946d9197f904fc4c8067c965b01c0df00caa4bd5e5a62"
+    },
+    {
+      "path": "stdlib/tui.ramos",
+      "sha256": "fb69fa7686b371b13b43a420ea157efc7eb58ce225cebf2cd51bbe9da5df1a31"
+    }
+  ]
+}
