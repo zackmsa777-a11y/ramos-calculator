@@ -2,13 +2,13 @@
 
 A native **CLI, REPL and desktop scientific calculator**, written in Ramos.
 The same expression engine powers both interfaces on Linux x64 and Windows x64.
-Targets **Ramos 0.19.1**. Part of the
+Targets **Ramos 0.22.0**. Part of the
 [Ramos project hub](https://github.com/zackmsa777-a11y/ramos/blob/main/docs/ecosystem.md).
 
 ## Install the compiler and run
 
 Download the native compiler from the
-[0.19.1 release](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.19.1):
+[0.22.0 release](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.22.0):
 `ramos-linux-x86_64` (rename to `ramos`, `chmod +x ramos`) or `ramos.exe`.
 Optional Python 3 setup verifies the binary SHA-256:
 
@@ -74,8 +74,10 @@ Clear resets the expression and retains `ans`.
 - Trig input is at most **1e6 radians** in magnitude. `tan` rejects points where
   the computed cosine has magnitude below **1e-12**. Values near poles lose accuracy.
 - `ln` and `log` require positive arguments; `exp` accepts **[-230,230]**.
-- At most **4096 UTF-8 bytes** per expression and **8 recursive expression
+- At most **4096 UTF-8 bytes** per expression and **64 recursive expression
   levels**, including unary operators, arguments and right-hand subexpressions.
+  Exceeding the limit returns an app error; the compiler separately checks
+  1,024 active calls and a 4 MiB stack budget.
 - Lowercase function/constants only; decimal literals need digits before and
   after a decimal point. No assignments, implicit multiplication or variables
   beyond `ans`. Invalid UTF-8 is governed by Ramos's checked string conversion.

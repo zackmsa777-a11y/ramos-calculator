@@ -68,6 +68,15 @@ try:
         set_expression("sin(rad(30))+sqrt(9)")
         click(5)
         wait(lambda: "3.5000000000" in text(3), "scientific result")
+        set_expression("("*63+"1"+")"*63)
+        click(5)
+        wait(lambda: "1.0000000000" in text(3), "deep nesting result")
+        set_expression("("*64+"1"+")"*64)
+        click(5)
+        wait(lambda: "nesting limit" in text(4), "recoverable nesting error")
+        set_expression("sin(rad(30))+sqrt(9)")
+        click(5)
+        wait(lambda: "3.5000000000" in text(3), "recovery after nesting error")
         set_expression("1/0")
         click(5)
         wait(lambda: "byte column" in text(4), "recoverable division error")
@@ -104,7 +113,8 @@ try:
                            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
             command("key", "ctrl+v")
             time.sleep(.2)
-        for expression in ["sin(rad(30))+sqrt(9)", "1/0", "ans*2"]:
+        for expression in ["("*63+"1"+")"*63, "("*64+"1"+")"*64,
+                           "sin(rad(30))+sqrt(9)", "1/0", "ans*2"]:
             paste(expression)
             click(60, 192)
             assert process.poll() is None, process.communicate()

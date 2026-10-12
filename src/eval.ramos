@@ -185,7 +185,7 @@ fn calc_atom(state: CalcState) -> float64 {
     return 0.0
 }
 fn calc_expression(state: CalcState, minimum: int64) -> float64 {
-    if state.depth >= 8 { calc_fail(state, -27)
+    if state.depth >= 64 { calc_fail(state, -27)
         return 0.0 }
     state.depth += 1
     var left = calc_atom(state)
