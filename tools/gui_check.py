@@ -8,7 +8,12 @@ import sys
 import time
 
 binary = sys.argv[1]
-process = subprocess.Popen([binary], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+test_env = os.environ.copy()
+if platform.system() == "Linux":
+    # This isolated desktop test does not exercise accessibility services.
+    # Disable only that optional bridge; unexpected stderr still fails.
+    test_env["NO_AT_BRIDGE"] = "1"
+process = subprocess.Popen([binary], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=test_env)
 
 def wait(predicate, label):
     end = time.monotonic() + 20
