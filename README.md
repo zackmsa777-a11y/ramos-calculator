@@ -2,13 +2,13 @@
 
 A native **CLI, REPL and desktop scientific calculator**, written in Ramos.
 The same expression engine powers both interfaces on Linux x64 and Windows x64.
-Targets **Ramos 0.22.0**. Part of the
+Targets **Ramos 0.23.0**. Part of the
 [Ramos project hub](https://github.com/zackmsa777-a11y/ramos/blob/main/docs/ecosystem.md).
 
 ## Install the compiler and run
 
 Download the native compiler from the
-[0.22.0 release](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.22.0):
+[0.23.0 release](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.23.0):
 `ramos-linux-x86_64` (rename to `ramos`, `chmod +x ramos`) or `ramos.exe`.
 Optional Python 3 setup verifies the binary SHA-256:
 
