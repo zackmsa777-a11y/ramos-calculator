@@ -36,6 +36,16 @@ for expression, expected in [("sqrt(9)+2^3",11),("-2^2",-4),("2^3^2",512),
     ("sqrt(max(4,9))",3),(" 2 + 3 * (4 - 1) ",11),("1e100/1e100",1),
     ("1e-100/1e-100",1),("exp(230)",math.exp(230)),("ln(1e-100)",math.log(1e-100))]:
     numeric(expression, expected)
+# Tiny outputs must retain information: an absolute tolerance would hide zero.
+for expression, expected in [("1e-100",1e-100),("-1e-100",-1e-100),
+                             ("1e100",1e100),("1e-100*2",2e-100),
+                             ("1e-100/2e-100",.5)]:
+    numeric(expression, expected, relative=5e-15, absolute=0)
+for expression, expected in [("7",b"7\n"),("3.5",b"3.5\n"),
+                             ("1e-100",b"1e-100\n"),("1e100",b"1e+100\n")]:
+    p = subprocess.run([binary,expression],capture_output=True,timeout=10)
+    assert (p.returncode,p.stdout,p.stderr) == (0,expected,b""), (expression,p.stdout,p.stderr)
+    count += 1
 # Exercise the entire app nesting budget through independent expression forms.
 for expression in ["("*63+"1"+")"*63, "+"*63+"1", "1^"*63+"1",
                    "sqrt("*63+"1"+")"*63]:
@@ -65,15 +75,19 @@ for expression in bad:
     assert b"runtime error" not in p.stderr.lower(), (expression[:40],p.stderr)
     count += 1
 p = subprocess.run([binary,"--repl"],input=b"2+3\n1/0\nans*2\nquit\n",capture_output=True,timeout=10)
-assert p.returncode == 0 and b"5.0000000000" in p.stdout and b"10.0000000000" in p.stdout
+assert p.returncode == 0 and b"> 5\n" in p.stdout and b"> 10\n" in p.stdout
 assert b"byte column" in p.stderr
 count += 1
 # A deeply nested rejection must not corrupt ans or the next REPL expression.
 p = subprocess.run([binary,"--repl"],
     input=("2+3\n"+"("*64+"1"+")"*64+"\nans*2\nquit\n").encode(),
     capture_output=True,timeout=10)
-assert p.returncode == 0 and b"10.0000000000" in p.stdout
+assert p.returncode == 0 and b"> 10\n" in p.stdout
 assert b"nesting limit" in p.stderr and b"runtime error" not in p.stderr.lower()
+count += 1
+p = subprocess.run([binary,"--repl"],input=b"1e-100\n1/0\nans*2\nquit\n",capture_output=True,timeout=10)
+assert p.returncode == 0 and b"> 1e-100\n" in p.stdout and b"> 2e-100\n" in p.stdout, (p.stdout,p.stderr)
+assert b"byte column" in p.stderr
 count += 1
 print(f"{count} numerical/error/REPL checks passed", flush=True)
 if windows:

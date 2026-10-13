@@ -61,7 +61,7 @@ fn main() {
                 let result = calc_eval(gui_text(2), ans)
                 if result.status != 0 { gui_set(4, calc_message(result)) }
                 else { ans = result.value
-                    gui_set(3, s"Result: " + math_text(ans, 10))
+                    gui_set(3, s"Result: " + math_format(ans, 17))
                     gui_set(4, s"Calculated; ans updated") }
             } else if event.id == 6 { gui_set(2, s"")
                 gui_set(4, s"Cleared expression; ans retained") }

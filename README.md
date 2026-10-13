@@ -2,13 +2,13 @@
 
 A native **CLI, REPL and desktop scientific calculator**, written in Ramos.
 The same expression engine powers both interfaces on Linux x64 and Windows x64.
-Targets **Ramos 0.23.0**. Part of the
+Targets **Ramos 0.24.0**. Part of the
 [Ramos project hub](https://github.com/zackmsa777-a11y/ramos/blob/main/docs/ecosystem.md).
 
 ## Install the compiler and run
 
 Download the native compiler from the
-[0.23.0 release](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.23.0):
+[0.24.0 release](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.24.0):
 `ramos-linux-x86_64` (rename to `ramos`, `chmod +x ramos`) or `ramos.exe`.
 Optional Python 3 setup verifies the binary SHA-256:
 
@@ -67,7 +67,9 @@ Clear resets the expression and retains `ans`.
 ## Deliberate limits
 
 - Binary64 approximations, not arbitrary-precision mathematics. Results use
-  fixed formatting with 10 decimal places; tiny values can display as zero.
+  compact formatting with 17 significant digits, preserving tiny nonzero
+  values. Scientific notation is used for rounded exponents below -4 or at least
+  17; ordinary results print as `7` or `3.5`. This is not shortest-decimal output.
 - Each nonzero input/intermediate must have magnitude **1e-100 through 1e100**.
   Out-of-range values are reported, with headroom to avoid native overflow traps.
 - Integer power exponents are **-64 through 64**; `0^0` is 1.

@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/zackmsa777-a11y/ramos",
-  "version": "0.23.0",
-  "commit": "d496ba4eb84d11152100d258df0464bea4a405bf",
+  "version": "0.24.0",
+  "commit": "5b291754ef6a9b4dc2a420b5893fbdbf4b37e3c2",
   "files": [
     {
       "path": "stdlib/bytes.ramos",
@@ -29,7 +29,7 @@
     },
     {
       "path": "stdlib/math.ramos",
-      "sha256": "4ed5c45620351f329ff9faf4fbec19a9e14a008e58b85971ac7adcface92e063"
+      "sha256": "23cbdde007598dd0ce391029fa91daebd9c1be63b62946d8fd269289dbd0bfc6"
     },
     {
       "path": "stdlib/numbers.ramos",

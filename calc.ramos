@@ -14,7 +14,7 @@ fn main() {
         let result = calc_eval(string(arg(1)), 0.0)
         if result.status != 0 { calc_report(result)
             exit(2) }
-        print(math_text(result.value, 10))
+        print(math_format(result.value, 17))
         return
     }
     print("Ramos calculator — type quit to leave; ans remembers the last result")
@@ -30,7 +30,7 @@ fn main() {
             let result = calc_eval(string(raw), ans)
             if result.status != 0 { calc_report(result) }
             else { ans = result.value
-                print(math_text(ans, 10)) }
+                print(math_format(ans, 17)) }
         }
     }
 }
