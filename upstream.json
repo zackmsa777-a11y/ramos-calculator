@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/zackmsa777-a11y/ramos",
-  "version": "0.24.0",
-  "commit": "5b291754ef6a9b4dc2a420b5893fbdbf4b37e3c2",
+  "version": "0.25.0",
+  "commit": "514694f50380f64c87d174548a355c7f54ba98e2",
   "files": [
     {
       "path": "stdlib/bytes.ramos",
@@ -13,7 +13,7 @@
     },
     {
       "path": "stdlib/gui.ramos",
-      "sha256": "52af9aec37a49b7c71f1e6e0d040a04e0be7224878ca0f7536798d5982b5db7c"
+      "sha256": "6370b9f290a0b660e14d17889345bef1b627ec694adde233ff64d7ad86d6c834"
     },
     {
       "path": "stdlib/io.ramos",
@@ -55,5 +55,6 @@
       "path": "stdlib/tui.ramos",
       "sha256": "fb69fa7686b371b13b43a420ea157efc7eb58ce225cebf2cd51bbe9da5df1a31"
     }
-  ]
+  ],
+  "release_status": "preview: Windows display transitions pending"
 }

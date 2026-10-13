@@ -2,13 +2,13 @@
 
 A native **CLI, REPL and desktop scientific calculator**, written in Ramos.
 The same expression engine powers both interfaces on Linux x64 and Windows x64.
-Targets **Ramos 0.24.0**. Part of the
+Targets **Ramos 0.25.0 preview**. Part of the
 [Ramos project hub](https://github.com/zackmsa777-a11y/ramos/blob/main/docs/ecosystem.md).
 
 ## Install the compiler and run
 
 Download the native compiler from the
-[0.24.0 release](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.24.0):
+[0.25.0 preview](https://github.com/zackmsa777-a11y/ramos/releases/tag/v0.25.0):
 `ramos-linux-x86_64` (rename to `ramos`, `chmod +x ramos`) or `ramos.exe`.
 Optional Python 3 setup verifies the binary SHA-256:
 
@@ -116,3 +116,9 @@ Python is test/setup tooling only. See [ROADMAP.md](ROADMAP.md) for the next app
 [Benchmarks](https://github.com/zackmsa777-a11y/ramos-benchmarks)
 
 Browse the shared [Ramos topic](https://github.com/topics/ramos).
+
+The GUI opts into logical DPI scaling and reflows on resize/scale events.
+Windows scaled windows require per-monitor-v2 support. Initial native window
+checks pass; genuine Windows display transitions still need the
+[adjustable-display test](https://github.com/zackmsa777-a11y/ramos/blob/v0.25.0/docs/gui-scaling.md).
+This pin uses the 0.25 preview; keep the 0.24 snapshot for rollback.

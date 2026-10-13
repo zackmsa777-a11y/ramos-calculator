@@ -36,7 +36,7 @@ fn calc_layout(width: int64, height: int64) {
     }
 }
 fn main() {
-    let status = gui_open(s"Ramos Scientific Calculator", 540, 480)
+    let status = gui_open_scaled(s"Ramos Scientific Calculator", 540, 480)
     if status != 0 { stderr("Cannot open calculator window; check GUI dependencies/display\n")
         exit(1) }
     gui_label(1, 16, 16, 508, 24, s"Expression: sqrt(9) + 2^3; constants: pi e ans")
@@ -55,7 +55,7 @@ fn main() {
     while running {
         let event = gui_event(-1)
         if event.kind == 1 { running = false }
-        if event.kind == 3 { calc_layout(event.width, event.height) }
+        if event.kind == 3 || event.kind == 6 { calc_layout(event.width, event.height) }
         if event.kind == 2 {
             if event.id == 5 {
                 let result = calc_eval(gui_text(2), ans)
